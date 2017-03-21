@@ -35,7 +35,7 @@ module.exports = function (grunt) {
             var csvData = grunt.file.read(file.src[0]);
 
             console.log("read file : " + file.src[0]);
-            console.log(localeHeaderMatch);
+
             parse(csvData,{},function (err,rows) {
 
                 if (err) next(err);
