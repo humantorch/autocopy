@@ -1,8 +1,0 @@
-ID,ANNOTATIONS,en_GB,en_US,de_DE,fr_FR,es_ES,es_MX
-item.one,fake data,one,one,ein,un,uno,uno
-item.two,,two,two,zwei,deux,dos,dos
-item.three,,three,three,drei,trois,tres,tres
-item.description,"any kind of description can go here, doesn't get put into jsons",colour,color,farbe,couleur,color,color
-ping,d,blurp,sdaf,asdf,sadf,asdf,wee
-thing,,,,,,eep,sdf
-anotheritem,poo,yes,yar,ja,oui,si,si señor
