@@ -9,6 +9,7 @@ module.exports = function (grunt) {
     var _ = require("underscore");
     var Spreadsheet = require('edit-google-spreadsheet');
     var stringify = require('csv-stringify');
+    var DEFAULT = 'EMPTY STRING - TO BE UPDATED';
 
 
     function convertStringToJSON(str) {
@@ -50,15 +51,29 @@ module.exports = function (grunt) {
 
                     grunt.log.writeln("Spreadsheet received");
 
-                    grunt.verbose.writeln(info);
+                    grunt.verbose.writeln(info.totalRows);
 
                     //# Convert objects into arrays
+
                     var rowArray = _.map(rows,function (row) {
+
                         var rowArray = [];
                         _.each(row,function (value,i) {
                             rowArray[parseInt(i,10) - 1] = value;
-                            console.log(i,value);
                         });
+
+                        // Check for empty cells in the spreadsheet and fill CSV with a default value (defined above)
+                        var len = rowArray.length;
+                        if (len < info.totalRows) {
+                            rowArray.length = info.totalRows;
+                            rowArray.fill(DEFAULT, len, info.totalRows);
+                        }
+                        for (var x=0; x<len; x++) {
+                            if(rowArray[x] === undefined) {
+                                rowArray[x] = DEFAULT;
+                            }
+                        }
+
                         return rowArray;
                     });
 
