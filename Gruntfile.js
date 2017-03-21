@@ -98,6 +98,6 @@ module.exports = function(grunt) {
     });
 
   // Default task.
-  grunt.registerTask('autocopy', ['copy-import']);
+  grunt.registerTask('autocopy', ['jsonclean','copy-import']);
 
 };

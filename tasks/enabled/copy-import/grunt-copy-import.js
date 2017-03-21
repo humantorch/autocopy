@@ -16,6 +16,67 @@ module.exports = function (grunt) {
         return JSON.parse(json);
     }
 
+     /**
+     * Export google spreadsheet to csv file
+     */
+    grunt.registerMultiTask('copy-import-google','Import the locale based copy from the localization deck',function () {
+
+        var done = this.async();
+        //# Config options for edit-google-spreadsheet
+        var sheetsConfig = this.options()['edit-google-spreadsheet'];
+        _.defaults(sheetsConfig,{
+            debug            :true,
+            useCellTextValues:true
+        });
+
+        //# List of worksheets to process
+        async.eachLimit(this.files,4,function (sheet,next) {
+
+            var config = _.defaults({worksheetName:sheet.orig.src[0]},sheetsConfig);
+
+            Spreadsheet.load(config,function sheetReady(err,spreadsheet) {
+
+                if (err) {
+                    throw err;
+                    next(err);
+                }
+
+                spreadsheet.receive({getValues:true},function (err,rows,info) {
+                    // console.log(rows);
+                    if (err) {
+                        throw err;
+                        next(err);
+                    }
+
+                    grunt.log.writeln("Spreadsheet received");
+
+                    grunt.verbose.writeln(info);
+
+                    //# Convert objects into arrays
+                    var rowArray = _.map(rows,function (row) {
+                        var rowArray = [];
+                        _.each(row,function (value,i) {
+                            rowArray[parseInt(i,10) - 1] = value;
+                            console.log(i,value);
+                        });
+                        return rowArray;
+                    });
+
+                    stringify(rowArray,function (err,csv) {
+                        if (err) console.log(err);
+                        grunt.log.writeln("Converted to CSV");
+
+                        grunt.file.write(sheet.dest,csv);
+                        next(err);
+                    });
+                });
+            });
+        },function (err) {
+            done(err);
+        });
+
+    });
+
     /**
      * Convert google spreadsheet csv file to JSON
      */
@@ -28,7 +89,6 @@ module.exports = function (grunt) {
             localeHeaderMatch = file.match || localeHeaderMatch;
 
             var csvData = grunt.file.read(file.src[0]);
-
             console.log("read file : " + file.src[0]);
 
             parse(csvData,{},function (err,rows) {
@@ -39,7 +99,6 @@ module.exports = function (grunt) {
                 var headers;
                 do {
                     headers = _.values(rows.shift());
-                    // console.log(headers);
                 } while (headers[0] !== 'ID' || rows.length === 0);
 
                 //# Build locale containers
@@ -53,8 +112,11 @@ module.exports = function (grunt) {
 
                 //# Fill locale containers with cell data
                 _.each(rows,function (row,i) {
-
                     //# Check to see if this is a valid content row
+                    if (row[1] === '') {
+                        row[1] = 'UNDEFINED';
+                        console.log('empty row');
+                    }
                     if (row[0] && row[1]) {
                         try {
 
@@ -95,63 +157,4 @@ module.exports = function (grunt) {
         });
     });
 
-    /**
-     * Export google spreadsheet to csv file
-     */
-    grunt.registerMultiTask('copy-import-google','Import the locale based copy from the localization deck',function () {
-
-        var done = this.async();
-        //# Config options for edit-google-spreadsheet
-        var sheetsConfig = this.options()['edit-google-spreadsheet'];
-        _.defaults(sheetsConfig,{
-            debug            :true,
-            useCellTextValues:true
-        });
-
-        //# List of worksheets to process
-        async.eachLimit(this.files,4,function (sheet,next) {
-
-            var config = _.defaults({worksheetName:sheet.orig.src[0]},sheetsConfig);
-
-            Spreadsheet.load(config,function sheetReady(err,spreadsheet) {
-
-                if (err) {
-                    throw err;
-                    next(err);
-                }
-
-                spreadsheet.receive({getValues:true},function (err,rows,info) {
-
-                    if (err) {
-                        throw err;
-                        next(err);
-                    }
-
-                    grunt.log.writeln("Spreadsheet received");
-
-                    grunt.verbose.writeln(info);
-
-                    //# Convert objects into arrays
-                    var rowArray = _.map(rows,function (row) {
-                        var rowArray = [];
-                        _.each(row,function (value,i) {
-                            rowArray[parseInt(i,10) - 1] = value;
-                        });
-                        return rowArray;
-                    });
-
-                    stringify(rowArray,function (err,csv) {
-                        if (err) console.log(err);
-                        grunt.log.writeln("Converted to CSV");
-
-                        grunt.file.write(sheet.dest,csv);
-                        next(err);
-                    });
-                });
-            });
-        },function (err) {
-            done(err);
-        });
-
-    });
 };

@@ -5,6 +5,7 @@ module.exports = function (grunt) {
             "main":{
                 "options":{
                     "edit-google-spreadsheet":{
+                        "debug": true,
                         "spreadsheetId":'1SYnnG5fFkV08MzVYXw-xHl24fflEmjsLOfIRM_yAN6Q', //'GOOGLE SPREADSHEET ID',
                         "worksheetId": "od6",
                         "oauth"        :{
