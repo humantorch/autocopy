@@ -1,8 +1,3 @@
-/**
- * ...
- * @author emlyn@resn.co.nz
- */
-
 module.exports = function (grunt) {
 
     grunt.registerTask('copy-import','Import copy deck from google and export locale json files.',

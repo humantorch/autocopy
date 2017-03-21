@@ -1,8 +1,3 @@
-/**
- * ...
- * @author emlyn@resn.co.nz
- */
-
 module.exports = function (grunt) {
 
     return {
